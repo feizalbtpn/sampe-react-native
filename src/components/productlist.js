@@ -2,14 +2,25 @@
  * Created by feizal on 3/3/17.
  */
 
-import React, { Component, PropTypes } from 'react';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux'
 import _ from 'lodash';
-import { AppRegistry, ListView, Text, View, Image } from 'react-native';
-import Header from './common/header'
-import Card from './common/card'
-import CardSection from './common/cardsection'
+
+import React, { Component, PropTypes } from 'react'
+import { connect } from 'react-redux';
+import { Actions } from 'react-native-redux-router'
+import { bindActionCreators } from 'redux'
+import {
+    AppRegistry,
+    ListView,
+    Text,
+    View,
+    Image,
+    StyleSheet,
+    TouchableHighlight
+} from 'react-native';
+import CustomNavigationBar from './common/NavigationBar'
+import ListItem from './common/ListItem'
+import ListContentView from './common/ListContentView'
+
 import * as actionCreators from '../actions/'
 import { getProducts, showLoading } from '../actions'
 
@@ -17,14 +28,18 @@ class ProductList extends Component {
 
     constructor(props) {
         super(props);
+
         this.state = {
             products: props.products,
             loading: props.loading,
-        }
+        };
+
         this.ds = new ListView.DataSource({
             rowHasChanged: (r1, r2) => r1 !== r2
         });
         this.dataSource = this.ds.cloneWithRows([]);
+
+        this.click = this.click.bind(this);
     }
 
     componentWillMount() {
@@ -32,45 +47,74 @@ class ProductList extends Component {
         this.props.dispatch(getProducts());
     }
 
-    renderRow(product) {
-        return (
-            <Card>
-                <CardSection>
-                    <Image style={styles.image} source={{ uri: product.image }}/>
-                    <View style={styles.productText}>
-                        <Text style={styles.productName}>{product.name}</Text>
-                        <Text style={styles.productDescription}>{product.description}</Text>
-                    </View>
-                </CardSection>
-            </Card>
-        );
+    componentWillReceiveProps(nextProps) {
+        this.dataSource = this.ds.cloneWithRows(nextProps.products || []);
     }
 
     render() {
-        this.dataSource = this.ds.cloneWithRows(this.props.products || []);
         if (this.props.loading === true) {
             return (
-                <View>
-                    <Header headerText={ 'Products' }/>
+                <View style={styles.container}>
+                    <CustomNavigationBar
+                        titleConfig={titleConfig}
+                        rightButtonConfig={rightButtonConfig}
+                    />
                     <Text style={styles.loading}>Loading...</Text>
                 </View>
             )
         } else {
             return (
-                <View>
-                    <Header headerText={ 'Products' }/>
+                <View style={styles.container}>
+                    <CustomNavigationBar
+                        titleConfig={titleConfig}
+                        rightButtonConfig={rightButtonConfig}
+                    />
                     <ListView
                         enableEmptySections
                         dataSource={this.dataSource}
-                        renderRow={this.renderRow}
+                        renderRow={this.renderRow.bind(this)}
+                        renderSeparator={(sectionId, rowId) => <View key={rowId} style={styles.separator} />}
                     />
                 </View>
             );
         }
     }
+
+    renderRow(product) {
+        return (
+            <TouchableHighlight onPress={()=>Actions.productDetail}>
+                <ListItem>
+                    <ListContentView>
+                        <Image style={styles.image} source={{ uri: product.image }}/>
+                        <View style={styles.productText}>
+                            <Text style={styles.productName}>{product.name}</Text>
+                            <Text style={styles.productDescription}>{product.description}</Text>
+                            <Text style={styles.productDescription}>{product.price}</Text>
+                        </View>
+                    </ListContentView>
+                </ListItem>
+            </TouchableHighlight>
+        );
+    }
+
+    click() {
+        () => Actions.productDetail
+    }
 }
 
+const rightButtonConfig = {
+    title: 'Search',
+    handler: () => alert('On Progress'),
+};
+
+const titleConfig = {
+    title: 'Products',
+};
+
 const styles = {
+    container: {
+        flex: 1,
+    },
     image: {
         width: 50,
         height: 50,
@@ -79,9 +123,10 @@ const styles = {
     productText: {
         flex: 1,
         flexDirection: 'column',
+        marginLeft: 10,
     },
     productName: {
-        fontSize:18,
+        fontSize:17,
         fontWeight: 'bold',
     },
     productDescription: {
@@ -90,7 +135,13 @@ const styles = {
     loading: {
         marginTop: 15,
         textAlign: 'center',
-    }
+    },
+    separator: {
+        flex: 1,
+        height: StyleSheet.hairlineWidth,
+        backgroundColor: '#8E8E8E',
+        marginLeft: 15,
+    },
 };
 
 const mapStateToProps = (state) => {

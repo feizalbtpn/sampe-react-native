@@ -1,7 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
 
-const Card = (props) => {
+const ListItem = (props) => {
     return (
         <View style={styles.containerStyle}>
             {props.children}
@@ -11,12 +11,10 @@ const Card = (props) => {
 
 const styles = {
     containerStyle: {
-        borderBottomWidth: 0.2,
-        borderBottomColor: 'black',
         marginTop: 10,
         paddingBottom: 10,
         marginLeft: 15,
     }
 };
 
-export default Card;
+export default ListItem;

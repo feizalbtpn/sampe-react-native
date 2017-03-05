@@ -8,8 +8,8 @@ import { Provider } from 'react-redux';
 import { createStore, applyMiddleware } from 'redux';
 import ReduxThunk from 'redux-thunk';
 import { rootReducers } from './reducers';
-import ProductList from './components/productlist'
-import ProductDetail from './components/productdetail'
+import ProductList from './components/ProductList'
+import ProductDetail from './components/ProductDetail'
 
 import { Router, Route } from 'react-native-redux-router'
 
@@ -25,8 +25,8 @@ class App extends React.Component {
             <Provider store={store}>
                 <View style={{flex:1}}>
                     <Router>
-                        <Route name="launch" component={ProductList} title="Products"/>
-                        <Route name="productDetail" component={ProductDetail} initial={true} title="Product Detail"/>
+                        <Route name="launch" component={ProductList} title="Products" initial={true} />
+                        <Route name="productDetail" component={ProductDetail} title="Product Detail"/>
                     </Router>
                 </View>
             </Provider>
