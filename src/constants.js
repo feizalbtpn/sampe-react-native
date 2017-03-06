@@ -3,10 +3,9 @@
  */
 
 export const Product = {
-    SHOW_LIST: 'PRODUCT_GET_DETAIL',
+    SHOW_LIST: 'PRODUCT_SHOW_LIST',
+    SHOW_DETAIL: 'PRODUCT_SHOW_DETAIL',
     SHOW_LOADING: 'PRODUCT_SHOW_LOADING',
-    ADD: 'PRODUCT_ADD',
-    REMOVE: 'PRODUCT_REMOVE'
 };
 
 export const General = {

@@ -19,17 +19,11 @@ export function productReducers(state = initialState, action) {
                 products: action.products,
                 loading: false,
             };
-        case Product.ADD:
+        case Product.SHOW_DETAIL:
             return {
                 ...state,
-                productName: action.productName,
-                productDescription: action.productDescription,
-            };
-        case Product.REMOVE:
-            return {
-                ...state,
-                error: action.error,
-                success: action.success,
+                product: action.product,
+                loading: false,
             };
         default:
             return state

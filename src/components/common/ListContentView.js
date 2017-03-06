@@ -1,9 +1,9 @@
 import React from 'react';
 import { View } from 'react-native';
 
-const ListContentView = (props) => {
+export const ListContentView = (props) => {
     return (
-        <View style={styles.containerStyle}>
+        <View style={[styles.containerStyle, props.style]}>
             {props.children}
         </View>
     );
@@ -11,11 +11,9 @@ const ListContentView = (props) => {
 
 const styles = {
     containerStyle: {
-        backgroundColor: '#fff',
+        backgroundColor: 'transparent',
         justifyContent: 'flex-start',
         flexDirection: 'row',
         position: 'relative'
     }
 };
-
-export default ListContentView;

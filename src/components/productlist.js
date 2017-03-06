@@ -5,9 +5,6 @@
 import _ from 'lodash';
 
 import React, { Component, PropTypes } from 'react'
-import { connect } from 'react-redux';
-import { Actions } from 'react-native-redux-router'
-import { bindActionCreators } from 'redux'
 import {
     AppRegistry,
     ListView,
@@ -15,36 +12,27 @@ import {
     View,
     Image,
     StyleSheet,
-    TouchableHighlight
+    TouchableHighlight,
+    ActivityIndicator
 } from 'react-native';
-import CustomNavigationBar from './common/NavigationBar'
-import ListItem from './common/ListItem'
-import ListContentView from './common/ListContentView'
-
-import * as actionCreators from '../actions/'
+import { connect } from 'react-redux';
+import { ListItem, ListContentView } from './common'
 import { getProducts, showLoading } from '../actions'
+import { Actions } from 'react-native-redux-router'
 
 class ProductList extends Component {
 
     constructor(props) {
         super(props);
-
-        this.state = {
-            products: props.products,
-            loading: props.loading,
-        };
-
         this.ds = new ListView.DataSource({
             rowHasChanged: (r1, r2) => r1 !== r2
         });
         this.dataSource = this.ds.cloneWithRows([]);
-
-        this.click = this.click.bind(this);
     }
 
     componentWillMount() {
-        this.props.dispatch(showLoading());
-        this.props.dispatch(getProducts());
+        this.props.showLoading();
+        this.props.getProducts();
     }
 
     componentWillReceiveProps(nextProps) {
@@ -52,23 +40,21 @@ class ProductList extends Component {
     }
 
     render() {
-        if (this.props.loading === true) {
+        if (this.props.loading) {
             return (
-                <View style={styles.container}>
-                    <CustomNavigationBar
-                        titleConfig={titleConfig}
-                        rightButtonConfig={rightButtonConfig}
-                    />
-                    <Text style={styles.loading}>Loading...</Text>
+                <View style={[styles.container, { justifyContent: 'center' }]}>
+                    <ActivityIndicator animating={true} size="large"/>
+                </View>
+            )
+        } else if (this.props.error) {
+            return (
+                <View style={styles.error}>
+                    <Text style={styles.loading}>{this.props.error}</Text>
                 </View>
             )
         } else {
             return (
                 <View style={styles.container}>
-                    <CustomNavigationBar
-                        titleConfig={titleConfig}
-                        rightButtonConfig={rightButtonConfig}
-                    />
                     <ListView
                         enableEmptySections
                         dataSource={this.dataSource}
@@ -82,34 +68,24 @@ class ProductList extends Component {
 
     renderRow(product) {
         return (
-            <TouchableHighlight onPress={()=>Actions.productDetail}>
-                <ListItem>
-                    <ListContentView>
-                        <Image style={styles.image} source={{ uri: product.image }}/>
-                        <View style={styles.productText}>
-                            <Text style={styles.productName}>{product.name}</Text>
-                            <Text style={styles.productDescription}>{product.description}</Text>
-                            <Text style={styles.productDescription}>{product.price}</Text>
-                        </View>
-                    </ListContentView>
-                </ListItem>
+            <TouchableHighlight onPress={()=>Actions.productDetail({data: product, onPrev: true})} underlayColor={'ghostwhite'}>
+                <View>
+                    <ListItem>
+                        <ListContentView>
+                            <Image style={styles.image} source={{ uri: product.image }}/>
+                            <View style={styles.productText}>
+                                <Text style={styles.productName}>{product.name}</Text>
+                                <Text style={styles.productDescription}>{product.description}</Text>
+                                <Text style={styles.productDescription}>{product.price}</Text>
+                            </View>
+                        </ListContentView>
+                    </ListItem>
+                </View>
             </TouchableHighlight>
         );
     }
 
-    click() {
-        () => Actions.productDetail
-    }
 }
-
-const rightButtonConfig = {
-    title: 'Search',
-    handler: () => alert('On Progress'),
-};
-
-const titleConfig = {
-    title: 'Products',
-};
 
 const styles = {
     container: {
@@ -132,15 +108,14 @@ const styles = {
     productDescription: {
         fontSize: 15,
     },
-    loading: {
-        marginTop: 15,
-        textAlign: 'center',
+    error: {
+        color: 'red',
     },
     separator: {
         flex: 1,
-        height: StyleSheet.hairlineWidth,
-        backgroundColor: '#8E8E8E',
         marginLeft: 15,
+        borderBottomColor: '#8E8E8E',
+        borderBottomWidth: StyleSheet.hairlineWidth
     },
 };
 
@@ -148,11 +123,8 @@ const mapStateToProps = (state) => {
     return {
         products: state.productReducers.products,
         loading: state.productReducers.loading,
+        error: state.generalReducers.error,
     }
 };
 
-function mapDispatchToProps(dispatch) {
-    return { actions: bindActionCreators(actionCreators, dispatch) }
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(ProductList);
+export default connect(mapStateToProps, { showLoading, getProducts })(ProductList);

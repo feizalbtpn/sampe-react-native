@@ -5,39 +5,6 @@
 import { Product, General } from '../constants'
 import { get } from 'superagent';
 
-
-// export const addProduct = (name, description) => {
-//     return dispatch => {
-//         setTimeout(() => {
-//             dispatch(requestPostProduct(name, description))
-//         }, 2000)
-//     }
-// };
-//
-// export const requestPostProduct = (name, description) => {
-//     return {
-//         type: Product.ADD,
-//         success: true,
-//         error: null,
-//     }
-// };
-//
-// export const removeProduct = (productId) => {
-//     return dispatch => {
-//         setTimeout(() => {
-//             dispatch(requestRemoveProduct(productId))
-//         }, 2000)
-//     }
-// };
-//
-// export requestRemoveProduct = (productId) => {
-//     return {
-//         type: Product.REMOVE,
-//         success: true,
-//         error: null,
-//     }
-// };
-
 export const getProducts = () => {
     return (dispatch) => {
         fetch('http://localhost:8000/products')
@@ -53,6 +20,21 @@ export const getProducts = () => {
     };
 };
 
+export const getProductDetail = (productId) => {
+    return (dispatch) => {
+        fetch(`http://localhost:8000/product/${productId}`)
+            .then((response) => {
+                return response.json()
+            })
+            .then((response) => {
+                dispatch(loadProductSuccess(response.product))
+            })
+            .catch((error) => {
+                dispatch(showErrorMessage(error.toString()))
+            })
+    }
+}
+
 export const showLoading = () => {
     return {
         type: Product.SHOW_LOADING,
@@ -65,6 +47,13 @@ export const loadProductsSuccess = (products) => {
         type: Product.SHOW_LIST,
         products: products,
     };
+};
+
+export const loadProductSuccess = (product) => {
+    return {
+        type: Product.SHOW_DETAIL,
+        product: product,
+    }
 };
 
 export const showErrorMessage = (message) => {
